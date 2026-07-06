@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>薰木園 DiffuserArt — 三摺傳單預覽</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: #3a3a3a;
+  font-family: 'Noto Serif TC','Songti TC','Microsoft YaHei',sans-serif;
+  display: flex; flex-direction: column; align-items: center; padding: 20px; min-height: 100vh;
+}
+h2 { color: #A3C1A3; margin-bottom: 8px; font-size: 1.3rem; }
+.lang-switch { display: flex; gap: 6px; margin-bottom: 10px; }
+.lang-switch button {
+  padding: 6px 20px; border: 2px solid #A3C1A3; color: #A3C1A3;
+  background: transparent; font-size: 0.9rem; cursor: pointer; border-radius: 4px; font-family: inherit;
+}
+.lang-switch button.active { background: #A3C1A3; color: #2D4A3E; font-weight: bold; }
+.lang-switch button:hover { background: rgba(163,193,163,0.2); }
+.tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+.tabs button {
+  padding: 10px 32px; border: 2px solid #A3C1A3; color: #A3C1A3;
+  background: transparent; font-size: 1rem; cursor: pointer; border-radius: 4px; font-family: inherit;
+}
+.tabs button.active { background: #A3C1A3; color: #2D4A3E; font-weight: bold; }
+.tabs button:hover { background: rgba(163,193,163,0.2); }
+/* Language visibility */
+.id-page { display: none; }
+.id-page.visible { display: flex; }
+body.lang-zh #outer-page-en,
+body.lang-zh #inner-page-en { display: none !important; }
+body.lang-en #outer-page-zh,
+body.lang-en #inner-page-zh { display: none !important; }
+/* EN: tighter sizing */
+body.lang-en .p5 .cat-t { font-size: 6.5px; }
+body.lang-en .p4 .sec-sub { font-size: 6px; }
+body.lang-en .p4 .badge { font-size: 5.5px; }
+body.lang-en .p5 .subt { font-size: 6.5px; }
+body.lang-en .p3 .highlight { font-size: 7px; }
+body.lang-en .p3 .award-desc { font-size: 5.5px; }
+body.lang-en .p1 .tagline-zh { font-size: 9px; }
+body.lang-en .p1 .footer-dots { font-size: 7px; }
+body.lang-en .p1 .brand-zh { font-size: 15px; }
+body.lang-en .p1 .brand-en { font-size: 7px; }
+body.lang-en .p1 .p1-single-title { font-size: 13px; }
+
+.leaflet-wrap { background: #fff; box-shadow: 0 4px 24px rgba(0,0,0,0.5); width: 574px; height: 424px; display: flex; margin-bottom: 16px; }
+.panel { position: relative; overflow: hidden; border-right: 1px dashed rgba(0,0,0,0.1); }
+.panel:last-child { border-right: none; }
+.pl  { flex: 0 0 31.7%; }
+.pm  { flex: 0 0 34%; }
+.pr  { flex: 0 0 34.3%; }
+.pi  { flex: 0 0 33.333%; }
+.hidden { display: none; }
+
+.photo-slot {
+  border: 2px dashed #A3C1A3; background: rgba(139,175,141,0.15);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; position: relative; overflow: hidden;
+}
+.photo-slot .slot-label {
+  font-size: 8px; color: #5a8a5e; font-weight: bold;
+  background: rgba(255,255,255,0.7); padding: 2px 6px; border-radius: 3px;
+  position: absolute; bottom: 4px; left: 4px;
+  max-width: 95%; word-break: break-all; line-height: 1.3;
+}
+.photo-slot .slot-icon { font-size: 14px; color: #8BAF8D; margin-bottom: 2px; }
+.photo-slot .slot-hint { font-size: 7px; color: #8BAF8D; opacity: 0.6; }
+
+/* PANEL 1: COVER */
+.p1 {
+  background: #2D4A3E; position: relative; overflow: hidden;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 30px 18px; color: #F5F2EB;
+}
+.p1 .p1-bg-shapes { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+.p1 .p1-circle { position: absolute; border-radius: 50%; filter: blur(22px); opacity: 0.12; }
+.p1 .p1-circle.c1 { width: 120px; height: 120px; background: #A3C1A3; top: -25px; right: -25px; }
+.p1 .p1-circle.c2 { width: 80px; height: 80px; background: #8BAF8D; bottom: 40px; left: -20px; }
+.p1 .p1-circle.c3 { width: 64px; height: 32px; border-radius: 32px; background: #A3C1A3; top: 42%; left: -14px; }
+.p1 .p1-circle.c4 { width: 52px; height: 52px; background: #8BAF8D; bottom: 14px; right: 14%; }
+.p1 .brand-zh { font-size: 16px; letter-spacing: 10px; margin-bottom: 4px; opacity: 0.9; font-weight: 400; }
+.p1 .brand-en {
+  font-family: 'Segoe UI','Helvetica Neue',sans-serif;
+  font-size: 8px; letter-spacing: 7px; opacity: 0.7; margin-bottom: 20px; text-transform: uppercase;
+}
+.p1 .cover-logo { margin-bottom: 10px; }
+.p1 .p1-single-title {
+  font-family: 'Segoe UI','Helvetica Neue',sans-serif;
+  font-size: 14px; font-weight: 300; letter-spacing: 5px;
+  line-height: 1.1; margin-bottom: 14px; white-space: nowrap; text-align: center;
+}
+.p1 .divider {
+  width: 50px; height: 1px; background: rgba(245,242,235,0.35);
+  margin-bottom: 14px;
+}
+.p1 .tagline-zh { font-size: 10px; letter-spacing: 3px; margin-bottom: 20px; opacity: 0.8; line-height: 1.7; }
+.p1 .footer-dots {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  font-size: 8px; letter-spacing: 2px; opacity: 0.6;
+}
+.p1 .footer-dots .dot {
+  width: 4px; height: 4px; border-radius: 50%; background: rgba(245,242,235,0.5); flex-shrink: 0;
+}
+.p1 .cover-photo-slot {
+  position: absolute; inset: 0; z-index: 0; opacity: 0.15; border: none;
+}
+.p1 .cover-photo-slot .slot-label { display: none; }
+.p1 .cover-content {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+
+/* PANEL 2: BACK COVER */
+.p2 {
+  background: #2D4A3E; color: #F5F2EB;
+  padding: 10px 12px; display: flex; flex-direction: column; justify-content: flex-start;
+}
+
+/* PANEL 3: BRAND STORY */
+.p3 {
+  background: #F5F2EB; color: #2D4A3E;
+  padding: 16px 14px; display: flex; flex-direction: column;
+}
+.p3 .sec-title { font-size: 12px; letter-spacing: 3px; margin-bottom: 6px; color: #2D4A3E; font-weight: bold; text-align: center; }
+.p3 .story-t { font-size: 7px; line-height: 1.7; margin-bottom: 6px; }
+.p3 .highlight { color: #5a8a5e; font-size: 8px; margin: 4px 0; letter-spacing: 1px; }
+.p3 .poem { font-size: 7px; color: #8BAF8D; margin-bottom: 6px; }
+.p3 hr.dv { border: none; border-top: 1px solid #8BAF8D; width: 30px; margin: 5px 0; }
+.p3 .award-item { margin-bottom: 5px; }
+.p3 .award-name { font-weight: bold; font-size: 7px; }
+.p3 .award-desc { font-size: 6px; opacity: 0.7; margin-top: 1px; }
+
+/* PANEL 4: PRODUCTS */
+.p4 {
+  background: #F5F2EB; color: #2D4A3E;
+  padding: 12px 9px; display: flex; flex-direction: column;
+}
+.p4 .sec-title { font-size: 12px; letter-spacing: 3px; text-align: center; margin-bottom: 2px; font-weight: bold; }
+.p4 .sec-sub { text-align: center; font-size: 7px; color: #8BAF8D; margin-bottom: 7px; }
+.p4 .badge { margin-top: 5px; text-align: center; font-size: 6px; color: #8BAF8D; }
+
+/* PANEL 5: CUSTOM */
+.p5 {
+  background: #F5F2EB; color: #2D4A3E;
+  padding: 8px 9px; display: flex; flex-direction: column;
+}
+.p5 .sec-title { font-size: 11px; letter-spacing: 3px; margin-bottom: 4px; font-weight: bold; text-align: center; }
+.p5 .subt { font-size: 7px; color: #8BAF8D; margin-bottom: 3px; text-align: center; }
+.p5 .cat-t { font-size: 7px; font-weight: bold; margin-bottom: 3px; }
+
+/* PANEL 6: CORPORATE GIFTS */
+.p6 {
+  background: #A3C1A3; color: #2D4A3E;
+  padding: 12px 10px; display: flex; flex-direction: column;
+}
+.p6 .sec-title { font-size: 10px; letter-spacing: 2px; text-align: center; margin-bottom: 5px; font-weight: bold; }
+.p6 .closing { text-align: center; font-size: 6px; margin-top: 3px; opacity: 0.8; line-height: 1.5; }
+
+.info {
+  color: #ccc; font-size: 12px; text-align: center; margin-top: 4px;
+  max-width: 574px; line-height: 1.6;
+}
+.info b { color: #A3C1A3; }
+
+@media screen and (max-width: 620px) {
+  .leaflet-wrap { width: 95vw; height: auto; aspect-ratio: 287/212; }
+}
+</style>
+</head>
+<body class="lang-zh">
+
+<h2>薰木園 DiffuserArt — 三摺傳單預覽</h2>
+
+<div class="lang-switch">
+  <button class="active" onclick="switchLang('zh')">中 文</button>
+  <button onclick="switchLang('en')">EN</button>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchPage('outer')">外頁（封面 | 封底 | 企業禮品）</button>
+  <button class="tab" onclick="switchPage('inner')">內頁（品牌故事 | 沉醉自然 | 專屬訂製）</button>
+</div>
+
+<!-- ====== ZH OUTER PAGE ====== -->
+<div id="outer-page-zh" class="leaflet-wrap id-page visible">
+
+  <!-- Panel 6 (RIGHT): Corporate Gifts -->
+  <div class="panel pr p6">
+    <!-- A. Header -->
+    <div style="font-family:'Noto Serif TC',serif;font-size:10px;font-weight:600;color:#2D4A3E;letter-spacing:5px;text-align:center;margin-bottom:3px;">企業禮品訂製</div>
+    <div style="font-family:'Segoe UI',sans-serif;font-size:5px;color:#047857;letter-spacing:4px;text-align:center;margin-bottom:7px;">DiffuserArt · Corporate Gifts</div>
+
+    <!-- B. Core Services -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:7px;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <svg style="width:16px;height:16px;color:#2D4A3E;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        <div style="font-size:5px;color:#2D4A3E;letter-spacing:2px;text-align:center;line-height:1.4;">標誌雕刻</div>
+      </div>
+      <div style="width:1px;height:32px;background:rgba(6,95,70,0.15);flex-shrink:0;"></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <svg style="width:16px;height:16px;color:#2D4A3E;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        <div style="font-size:5px;color:#2D4A3E;letter-spacing:2px;text-align:center;line-height:1.4;">專屬香氣調配</div>
+      </div>
+    </div>
+
+    <!-- C. Occasions Grid -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;column-gap:12px;row-gap:0;margin-bottom:7px;width:100%;">
+      <div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid rgba(6,95,70,0.08);">
+        <svg style="width:11px;height:11px;color:#2D4A3E;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+        <span style="font-size:5.5px;color:#2D4A3E;">活動伴手禮</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid rgba(6,95,70,0.08);">
+        <svg style="width:11px;height:11px;color:#2D4A3E;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+        <span style="font-size:5.5px;color:#2D4A3E;">客戶答謝禮</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid rgba(6,95,70,0.08);">
+        <svg style="width:11px;height:11px;color:#2D4A3E;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+        <span style="font-size:5.5px;color:#2D4A3E;">員工福利</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid rgba(6,95,70,0.08);">
+        <svg style="width:11px;height:11px;color:#2D4A3E;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+        <span style="font-size:5.5px;color:#2D4A3E;">婚禮回禮</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid rgba(6,95,70,0.08);">
+        <svg style="width:11px;height:11px;color:#2D4A3E;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+        <span style="font-size:5.5px;color:#2D4A3E;">節日禮盒</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid rgba(6,95,70,0.08);">
+        <svg style="width:11px;height:11px;color:#2D4A3E;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+        <span style="font-size:5.5px;color:#2D4A3E;">展會贈品</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid rgba(6,95,70,0.08);">
+        <svg style="width:11px;height:11px;color:#2D4A3E;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+        <span style="font-size:5.5px;color:#2D4A3E;">學校／機構紀念品</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid rgba(6,95,70,0.08);">
+        <svg style="width:11px;height:11px;color:#2D4A3E;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+        <span style="font-size:5.5px;color:#2D4A3E;">品牌聯乘合作</span>
+      </div>
+    </div>
+
+    <!-- D. CTA Pill -->
+    <div style="background:#d1fae5;color:#2D4A3E;font-size:5.5px;font-weight:500;letter-spacing:1px;padding:5px 18px;border-radius:999px;text-align:center;margin-bottom:6px;display:inline-block;align-self:center;line-height:1.3;">歡迎企業查詢，提供專人一對一禮品方案</div>
+
+    <!-- E. Contact & QR -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:4px;width:100%;">
+      <div style="width:48px;height:48px;flex-shrink:0;background:#fff;border-radius:6px;border:1px solid #d1fae5;box-shadow:0 1px 4px rgba(0,0,0,0.04);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;">
+        <svg style="width:20px;height:20px;color:#2D4A3E;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z"/></svg>
+        <span style="font-size:4px;color:#2D4A3E;">WhatsApp</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;">
+        <div style="display:flex;align-items:center;gap:4px;">
+          <div style="width:13px;height:13px;border-radius:50%;background:#d1fae5;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg style="width:6px;height:6px;color:#2D4A3E;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+          </div>
+          <div style="display:flex;flex-direction:column;">
+            <span style="font-size:3.5px;color:#2D4A3E;opacity:0.6;">WhatsApp 訂購</span>
+            <span style="font-size:5.5px;color:#2D4A3E;font-weight:bold;">+852 44850246</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:4px;">
+          <div style="width:13px;height:13px;border-radius:50%;background:#d1fae5;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg style="width:6px;height:6px;color:#2D4A3E;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10A15.3 15.3 0 0112 2z"/></svg>
+          </div>
+          <div style="display:flex;flex-direction:column;">
+            <span style="font-size:3.5px;color:#2D4A3E;opacity:0.6;">網站</span>
+            <span style="font-size:5.5px;color:#2D4A3E;font-weight:bold;">www.diffuserart.com</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- F. Footer Quote -->
+    <div style="width:32px;height:1px;background:rgba(6,95,70,0.12);margin:0 auto 5px;"></div>
+    <div style="font-family:'Noto Serif TC',serif;font-size:5px;font-style:italic;color:#2D4A3E;letter-spacing:1px;line-height:1.6;text-align:center;opacity:0.8;">
+      最好的禮物，不是一件物件，<br/><span style="display:block;margin-top:1px;">而是一趟可以帶回家的旅程。</span>
+    </div>
+
+    <!-- G. Contact Info -->
+    <div style="width:32px;height:1px;background:rgba(6,95,70,0.12);margin:6px auto 5px;"></div>
+    <div style="text-align:center;font-size:4.5px;line-height:1.5;color:#2D4A3E;opacity:0.75;">
+      WhatsApp 訂購：+852 44850246<br/>
+      網站：www.diffuserart.com<br/>
+      Email：welcome@diffuserart.com<br/>
+      IG：@diffuser_art | FB：DiffuserArt
+    </div>
+  </div>
+
+  <!-- Panel 1 (CENTER): Cover -->
+  <div class="panel pm p1">
+    <div class="p1-bg-shapes">
+      <div class="p1-circle c1"></div>
+      <div class="p1-circle c2"></div>
+      <div class="p1-circle c3"></div>
+      <div class="p1-circle c4"></div>
+    </div>
+    <div class="cover-photo-slot photo-slot"><span class="slot-label">Connect to Nature.png</span></div>
+    <div class="cover-content">
+      <div class="brand-zh">薰 木 園</div>
+      <div class="brand-en">DiffuserArt</div>
+      <div class="cover-logo">
+        <div class="photo-slot" style="width:30px; height:22px; display:inline-block; border-color:rgba(245,242,235,0.35); background:rgba(255,255,255,0.05);">
+          <span class="slot-icon" style="font-size:9px;">🖼</span>
+          <span class="slot-label" style="font-size:5px; bottom:1px; left:1px; padding:1px 3px; background:rgba(0,0,0,0.4);">Logo</span>
+        </div>
+      </div>
+      <div class="p1-single-title">Connect to Nature</div>
+      <div class="divider"></div>
+      <div class="tagline-zh">在都市的縫隙中，<br/>重拾自然的呼吸。</div>
+      <div class="footer-dots">
+        <span>一木</span><span class="dot"></span>
+        <span>一香</span><span class="dot"></span>
+        <span>一境</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel 2 (LEFT): Back Cover - 廬山瀑布 -->
+  <div class="panel pl p2" style="justify-content:flex-start; padding:12px 14px;">
+    <div style="font-family:'Noto Serif TC',serif;font-size:18px;font-weight:bold;color:#F5F2EB;letter-spacing:8px;text-align:center;margin-bottom:4px;">廬山瀑布</div>
+    <div style="font-family:'Noto Serif TC',serif;font-size:10px;color:#A3C1A3;letter-spacing:4px;text-align:center;margin-bottom:8px;">「疑是銀河落九天」</div>
+    <div style="background:rgba(163,193,163,0.12);border:1px solid rgba(163,193,163,0.25);border-radius:4px;padding:5px 8px;margin-bottom:10px;text-align:center;">
+      <div style="font-size:5.5px;color:#A3C1A3;line-height:1.6;">Smart Design Global 2026 優異獎<br/><span style="font-size:5px;opacity:0.65;">擴香液耗盡後 · 木雕化身永久塔香香爐</span></div>
+    </div>
+    <div style="width:32px;height:1px;background:rgba(163,193,163,0.25);margin:0 auto 8px;"></div>
+    <div style="font-size:6.5px;color:#A3C1A3;letter-spacing:4px;text-align:center;margin-bottom:8px;">使用方法 — 塔香式擴香</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 8px;margin-bottom:8px;">
+      <div style="display:flex;align-items:flex-start;gap:4px;">
+        <div style="width:14px;height:14px;border-radius:50%;background:rgba(163,193,163,0.2);color:#A3C1A3;font-size:7px;font-weight:bold;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">1</div>
+        <div><div style="font-size:5.5px;color:#F5F2EB;font-weight:bold;">點燃尖端</div><div style="font-size:4.5px;color:rgba(163,193,163,0.8);line-height:1.4;">將塔尖端點燃，輕輕搧熄明火</div></div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:4px;">
+        <div style="width:14px;height:14px;border-radius:50%;background:rgba(163,193,163,0.2);color:#A3C1A3;font-size:7px;font-weight:bold;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">2</div>
+        <div><div style="font-size:5.5px;color:#F5F2EB;font-weight:bold;">等待出煙</div><div style="font-size:4.5px;color:rgba(163,193,163,0.8);line-height:1.4;">靜待數秒至孔洞開始流出煙霧</div></div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:4px;">
+        <div style="width:14px;height:14px;border-radius:50%;background:rgba(163,193,163,0.2);color:#A3C1A3;font-size:7px;font-weight:bold;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">3</div>
+        <div><div style="font-size:5.5px;color:#F5F2EB;font-weight:bold;">對準孔洞</div><div style="font-size:4.5px;color:rgba(163,193,163,0.8);line-height:1.4;">塔香底部小孔精準對齊出煙孔</div></div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:4px;">
+        <div style="width:14px;height:14px;border-radius:50%;background:rgba(163,193,163,0.2);color:#A3C1A3;font-size:7px;font-weight:bold;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">4</div>
+        <div><div style="font-size:5.5px;color:#F5F2EB;font-weight:bold;">無風靜觀</div><div style="font-size:4.5px;color:rgba(163,193,163,0.8);line-height:1.4;">置於無風處，煙霧如水般順流而下</div></div>
+      </div>
+    </div>
+    <div class="photo-slot" style="width:64px;height:64px;border-radius:50%;border:2px dashed rgba(163,193,163,0.4);background:rgba(139,175,141,0.12);margin:0 auto 8px;">
+      <span class="slot-icon" style="font-size:18px;opacity:0.4;">🏔️</span>
+      <span class="slot-label" style="font-size:3.5px;bottom:3px;">廬山瀑布</span>
+    </div>
+    <div style="width:22px;height:1px;background:rgba(163,193,163,0.2);margin:0 auto 6px;"></div>
+    <div style="font-family:'Noto Serif TC',serif;font-size:6px;color:rgba(163,193,163,0.7);letter-spacing:4px;text-align:center;">薰木園 · 藝術選品</div>
+  </div>
+</div>
+
+<!-- ====== EN OUTER PAGE ====== -->
+<div id="outer-page-en" class="leaflet-wrap id-page hidden">
+
+  <!-- EN Panel 6 (RIGHT): Corporate Gifts -->
+  <div class="panel pr p6">
+    <div style="font-family:'Noto Serif TC',serif;font-size:10px;font-weight:600;color:#2D4A3E;letter-spacing:5px;text-align:center;margin-bottom:2px;">Corporate Gift Customisation</div>
+    <div style="font-family:'Segoe UI',sans-serif;font-size:5px;color:#047857;letter-spacing:4px;text-align:center;margin-bottom:5px;">DiffuserArt · Corporate Gifts</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:5px;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <svg style="width:16px;height:16px;color:#2D4A3E;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        <div style="font-size:5px;color:#2D4A3E;letter-spacing:2px;text-align:center;line-height:1.4;">Logo Engraving</div>
+      </div>
+      <div style="width:1px;height:32px;background:rgba(6,95,70,0.15);flex-shrink:0;"></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <svg style="width:16px;height:16px;color:#2D4A3E;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        <div style="font-size:5px;color:#2D4A3E;letter-spacing:2px;text-align:center;line-height:1.4;">Custom Scent Blending</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;column-gap:8px;row-gap:0;margin-bottom:5px;width:100%;">
+      <div style="display:flex;align-items:center;gap:5px;padding:3px 0;border-bottom:1px solid rgba(6,95,70,0.08);">
+        <svg style="width:11px;height:11px;color:#2D4A3E;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+        <span style="font-size:5px;color:#2D4A3E;">Event Souvenirs</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;padding:3px 0;border-bottom:1px solid rgba(6,95,70,0.08);">
+        <svg style="width:11px;height:11px;color:#2D4A3E;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+        <span style="font-size:5px;color:#2D4A3E;">Client Gifts</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;padding:3px 0;border-bottom:1px solid rgba(6,95,70,0.08);">
+        <svg style="width:11px;height:11px;color:#2D4A3E;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+        <span style="font-size:5px;color:#2D4A3E;">Staff Benefits</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;padding:3px 0;border-bottom:1px solid rgba(6,95,70,0.08);">
+        <svg style="width:11px;height:11px;color:#2D4A3E;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+        <span style="font-size:5px;color:#2D4A3E;">Wedding Favours</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;padding:3px 0;border-bottom:1px solid rgba(6,95,70,0.08);">
+        <svg style="width:11px;height:11px;color:#2D4A3E;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+        <span style="font-size:5px;color:#2D4A3E;">Festive Gift Boxes</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;padding:3px 0;border-bottom:1px solid rgba(6,95,70,0.08);">
+        <svg style="width:11px;height:11px;color:#2D4A3E;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+        <span style="font-size:5px;color:#2D4A3E;">Exhibition Giveaways</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;padding:3px 0;border-bottom:1px solid rgba(6,95,70,0.08);">
+        <svg style="width:11px;height:11px;color:#2D4A3E;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+        <span style="font-size:5px;color:#2D4A3E;">School Souvenirs</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;padding:3px 0;border-bottom:1px solid rgba(6,95,70,0.08);">
+        <svg style="width:11px;height:11px;color:#2D4A3E;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+        <span style="font-size:5px;color:#2D4A3E;">Brand Collaborations</span>
+      </div>
+    </div>
+    <div style="background:#d1fae5;color:#2D4A3E;font-size:5px;font-weight:500;letter-spacing:1px;padding:4px 14px;border-radius:999px;text-align:center;margin-bottom:5px;display:inline-block;align-self:center;line-height:1.3;">Enquire now for a one-on-one gift consultation</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:4px;width:100%;">
+      <div style="width:48px;height:48px;flex-shrink:0;background:#fff;border-radius:6px;border:1px solid #d1fae5;box-shadow:0 1px 4px rgba(0,0,0,0.04);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;">
+        <svg style="width:20px;height:20px;color:#2D4A3E;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z"/></svg>
+        <span style="font-size:4px;color:#2D4A3E;">WhatsApp</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;">
+        <div style="display:flex;align-items:center;gap:4px;">
+          <div style="width:13px;height:13px;border-radius:50%;background:#d1fae5;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg style="width:6px;height:6px;color:#2D4A3E;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+          </div>
+          <div style="display:flex;flex-direction:column;">
+            <span style="font-size:3.5px;color:#2D4A3E;opacity:0.6;">Order via WhatsApp</span>
+            <span style="font-size:5.5px;color:#2D4A3E;font-weight:bold;">+852 44850246</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:4px;">
+          <div style="width:13px;height:13px;border-radius:50%;background:#d1fae5;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg style="width:6px;height:6px;color:#2D4A3E;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10A15.3 15.3 0 0112 2z"/></svg>
+          </div>
+          <div style="display:flex;flex-direction:column;">
+            <span style="font-size:3.5px;color:#2D4A3E;opacity:0.6;">Website</span>
+            <span style="font-size:5.5px;color:#2D4A3E;font-weight:bold;">www.diffuserart.com</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="width:32px;height:1px;background:rgba(6,95,70,0.12);margin:0 auto 5px;"></div>
+    <div style="font-family:'Noto Serif TC',serif;font-size:5px;font-style:italic;color:#2D4A3E;letter-spacing:1px;line-height:1.6;text-align:center;opacity:0.8;">
+      The best gift is not a thing —<br/><span style="display:block;margin-top:1px;">it's a journey you can bring home.</span>
+    </div>
+    <div style="width:32px;height:1px;background:rgba(6,95,70,0.12);margin:6px auto 5px;"></div>
+    <div style="text-align:center;font-size:4.5px;line-height:1.5;color:#2D4A3E;opacity:0.75;">
+      Order via WhatsApp：+852 44850246<br/>
+      Web：www.diffuserart.com<br/>
+      Email：welcome@diffuserart.com<br/>
+      IG：@diffuser_art | FB：DiffuserArt
+    </div>
+  </div>
+
+  <!-- EN Panel 1 (CENTER): Cover -->
+  <div class="panel pm p1">
+    <div class="p1-bg-shapes">
+      <div class="p1-circle c1"></div>
+      <div class="p1-circle c2"></div>
+      <div class="p1-circle c3"></div>
+      <div class="p1-circle c4"></div>
+    </div>
+    <div class="cover-photo-slot photo-slot"><span class="slot-label">Connect to Nature.png</span></div>
+    <div class="cover-content">
+      <div class="brand-zh">薰 木 園</div>
+      <div class="brand-en">DiffuserArt</div>
+      <div class="cover-logo">
+        <div class="photo-slot" style="width:30px; height:22px; display:inline-block; border-color:rgba(245,242,235,0.35); background:rgba(255,255,255,0.05);">
+          <span class="slot-icon" style="font-size:9px;">🖼</span>
+          <span class="slot-label" style="font-size:5px; bottom:1px; left:1px; padding:1px 3px; background:rgba(0,0,0,0.4);">Logo</span>
+        </div>
+      </div>
+      <div class="p1-single-title">Connect to Nature</div>
+      <div class="divider"></div>
+      <div class="tagline-zh">Find nature's calm,<br/>right in the heart of the city.</div>
+      <div class="footer-dots">
+        <span>One Wood</span><span class="dot"></span>
+        <span>One Scent</span><span class="dot"></span>
+        <span>One Journey</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- EN Panel 2 (LEFT): Back Cover - Lushan Waterfall -->
+  <div class="panel pl p2" style="justify-content:flex-start; padding:12px 14px;">
+    <div style="font-family:'Noto Serif TC',serif;font-size:16px;font-weight:bold;color:#F5F2EB;letter-spacing:6px;text-align:center;margin-bottom:3px;">Lushan Waterfall</div>
+    <div style="font-family:'Noto Serif TC',serif;font-size:9px;color:#A3C1A3;letter-spacing:3px;text-align:center;margin-bottom:6px;">"A river of stars falling to earth"</div>
+    <div style="background:rgba(163,193,163,0.12);border:1px solid rgba(163,193,163,0.25);border-radius:4px;padding:4px 7px;margin-bottom:8px;text-align:center;">
+      <div style="font-size:5px;color:#A3C1A3;line-height:1.5;">Smart Design Global 2026 — Merit Award<br/><span style="font-size:4.5px;opacity:0.65;">After the scent fades, the wood art becomes a lasting incense burner</span></div>
+    </div>
+    <div style="width:28px;height:1px;background:rgba(163,193,163,0.25);margin:0 auto 6px;"></div>
+    <div style="font-size:6px;color:#A3C1A3;letter-spacing:3px;text-align:center;margin-bottom:6px;">How to Use — Cone Incense Diffuser</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 6px;margin-bottom:6px;">
+      <div style="display:flex;align-items:flex-start;gap:3px;">
+        <div style="width:13px;height:13px;border-radius:50%;background:rgba(163,193,163,0.2);color:#A3C1A3;font-size:6px;font-weight:bold;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">1</div>
+        <div><div style="font-size:5px;color:#F5F2EB;font-weight:bold;">Light the Tip</div><div style="font-size:4px;color:rgba(163,193,163,0.8);line-height:1.3;">Light the cone tip, gently blow out the flame</div></div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:3px;">
+        <div style="width:13px;height:13px;border-radius:50%;background:rgba(163,193,163,0.2);color:#A3C1A3;font-size:6px;font-weight:bold;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">2</div>
+        <div><div style="font-size:5px;color:#F5F2EB;font-weight:bold;">Wait for Smoke</div><div style="font-size:4px;color:rgba(163,193,163,0.8);line-height:1.3;">Wait a few seconds for smoke to flow from the base</div></div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:3px;">
+        <div style="width:13px;height:13px;border-radius:50%;background:rgba(163,193,163,0.2);color:#A3C1A3;font-size:6px;font-weight:bold;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">3</div>
+        <div><div style="font-size:5px;color:#F5F2EB;font-weight:bold;">Align the Hole</div><div style="font-size:4px;color:rgba(163,193,163,0.8);line-height:1.3;">Line up the small hole with the smoke outlet</div></div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:3px;">
+        <div style="width:13px;height:13px;border-radius:50%;background:rgba(163,193,163,0.2);color:#A3C1A3;font-size:6px;font-weight:bold;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">4</div>
+        <div><div style="font-size:5px;color:#F5F2EB;font-weight:bold;">Still Air View</div><div style="font-size:4px;color:rgba(163,193,163,0.8);line-height:1.3;">Place in a draft-free spot and watch the smoke cascade like water</div></div>
+      </div>
+    </div>
+    <div class="photo-slot" style="width:56px;height:56px;border-radius:50%;border:2px dashed rgba(163,193,163,0.4);background:rgba(139,175,141,0.12);margin:0 auto 6px;">
+      <span class="slot-icon" style="font-size:16px;opacity:0.4;">🏔️</span>
+      <span class="slot-label" style="font-size:3px;bottom:3px;">Lushan Waterfall</span>
+    </div>
+    <div style="width:20px;height:1px;background:rgba(163,193,163,0.2);margin:0 auto 5px;"></div>
+    <div style="font-family:'Noto Serif TC',serif;font-size:5.5px;color:rgba(163,193,163,0.7);letter-spacing:3px;text-align:center;">DiffuserArt · Artisan Collection</div>
+  </div>
+</div>
+
+<!-- ====== ZH INNER PAGE ====== -->
+<div id="inner-page-zh" class="leaflet-wrap id-page hidden">
+
+  <!-- Panel 5 (RIGHT): Custom Orders -->
+  <div class="panel pi p5">
+    <div class="sec-title">專屬訂製</div>
+    <div class="subt">定格浪漫時刻 · 瀰漫愛情馥香</div>
+    <div style="font-size:6px;opacity:0.7;margin-bottom:8px;">上傳合照，我們為你客製專屬木雕剪影，搭配多款迷人香氛。</div>
+
+    <div class="cat-t">《刻·時光》— 摯愛與情誼</div>
+    <div style="display:flex; gap:4px; margin-bottom:3px;">
+      <div class="photo-slot" style="flex:1; max-height:50px; aspect-ratio:1;"><span class="slot-icon" style="font-size:9px;">🏔️</span><span class="slot-label" style="font-size:4px;">秋日富士</span></div>
+      <div class="photo-slot" style="flex:1; max-height:50px; aspect-ratio:1;"><span class="slot-icon" style="font-size:9px;">🖼</span><span class="slot-label" style="font-size:4px;">童話夢境</span></div>
+    </div>
+    <div style="display:flex; gap:4px; margin-bottom:8px;">
+      <span style="flex:1; text-align:center; font-size:5px; color:#2D4A3E;">秋日富士</span>
+      <span style="flex:1; text-align:center; font-size:5px; color:#2D4A3E;">童話夢境</span>
+    </div>
+
+    <div class="cat-t">《承·恩典》— 家庭與祝福</div>
+    <div style="display:flex; gap:4px; margin-bottom:3px;">
+      <div class="photo-slot" style="flex:1; max-height:50px; aspect-ratio:1;"><span class="slot-icon" style="font-size:9px;">🖼</span><span class="slot-label" style="font-size:4px;">維港印記</span></div>
+      <div class="photo-slot" style="flex:1; max-height:50px; aspect-ratio:1;"><span class="slot-icon" style="font-size:9px;">🖼</span><span class="slot-label" style="font-size:4px;">香港迪士尼</span></div>
+    </div>
+    <div style="display:flex; gap:4px; margin-bottom:8px;">
+      <span style="flex:1; text-align:center; font-size:5px; color:#2D4A3E;">維港印記</span>
+      <span style="flex:1; text-align:center; font-size:5px; color:#2D4A3E;">香港迪士尼</span>
+    </div>
+
+    <div class="cat-t">《拾·樂趣》— 興趣與收藏</div>
+    <div style="display:flex; gap:4px; margin-bottom:3px;">
+      <div class="photo-slot" style="flex:1; max-height:50px; aspect-ratio:1;"><span class="slot-icon" style="font-size:9px;">🖼</span><span class="slot-label" style="font-size:4px;">無畏的旅程</span></div>
+      <div class="photo-slot" style="flex:1; max-height:50px; aspect-ratio:1;"><span class="slot-icon" style="font-size:9px;">🖼</span><span class="slot-label" style="font-size:4px;">草原低語</span></div>
+    </div>
+    <div style="display:flex; gap:4px; margin-bottom:4px;">
+      <span style="flex:1; text-align:center; font-size:5px; color:#2D4A3E;">無畏的旅程</span>
+      <span style="flex:1; text-align:center; font-size:5px; color:#2D4A3E;">草原低語</span>
+    </div>
+  </div>
+
+  <!-- Panel 4 (CENTER): 沉醉自然 - 7 Products -->
+  <div class="panel pi p4">
+    <div class="sec-title">沉醉自然</div>
+    <div class="sec-sub">七款香氣，七段旅程</div>
+
+    <!-- Row 1: Photo 2,3,4 -->
+    <div style="display:flex; gap:4px; margin-bottom:3px;">
+      <div class="photo-slot" style="flex:1; height:42px;"><span class="slot-icon">🌸</span><span class="slot-label">Diffuser\2.png</span></div>
+      <div class="photo-slot" style="flex:1; height:42px;"><span class="slot-icon">🌊</span><span class="slot-label">Diffuser\3.png</span></div>
+      <div class="photo-slot" style="flex:1; height:42px;"><span class="slot-icon">🌴</span><span class="slot-label">Diffuser\4.png</span></div>
+    </div>
+    <div style="display:flex; gap:2px; margin-bottom:6px; font-size:6px; text-align:center;">
+      <div style="flex:1; line-height:1.4;"><b>晨曦花語</b><br/><span style="color:#8BAF8D;">木質花香調</span><br/><span style="font-size:4.5px;color:#A3C1A3;line-height:1.3;">前:醛 梨 鈴蘭<br/>中:鳶尾花 玫瑰 橙花<br/>後:麝香 廣藿香 黃葵</span></div>
+      <div style="flex:1; line-height:1.4;"><b>藍調微風</b><br/><span style="color:#8BAF8D;">水生馥奇調</span><br/><span style="font-size:4.5px;color:#A3C1A3;line-height:1.3;">前:苦橙葉 橙子 橘子<br/>中:海藻 薰衣草 棉花<br/>後:廣藿香 琥珀 快樂鼠尾草</span></div>
+      <div style="flex:1; line-height:1.4;"><b>夜韻沙灘</b><br/><span style="color:#8BAF8D;">水生花香調</span><br/><span style="font-size:4.5px;color:#A3C1A3;line-height:1.3;">前:海水 醛 芫荽 甜椒<br/>中:鳶尾花 杜松 玫瑰<br/>後:海藻 龍涎香 琥珀木 雪松</span></div>
+    </div>
+
+    <!-- Row 2: Photo 1 (No.1 Popular Choice) - Large Centered -->
+    <div style="text-align:center; margin-bottom:6px;">
+      <div style="position:relative; width:68px; height:68px; margin:0 auto 4px;">
+        <div class="photo-slot" style="width:68px; height:68px; border:2px solid #2D4A3E; background:rgba(139,175,141,0.3);">
+          <span class="slot-icon">🍂</span><span class="slot-hint">Photo 1</span>
+          <span class="slot-label">Diffuser\1.png</span>
+        </div>
+        <div style="position:absolute; top:-6px; right:-6px; width:30px; height:30px; border-radius:50%; background:#2D4A3E; color:#F5F2EB; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:'Segoe UI','Helvetica Neue',sans-serif; transform:rotate(-12deg); box-shadow:0 1px 3px rgba(0,0,0,0.3); z-index:2;">
+          <div style="font-size:7px; font-weight:700; line-height:1; letter-spacing:0.5px;">No.1</div>
+          <div style="font-size:2.5px; line-height:1; letter-spacing:0.3px; opacity:0.9; margin-top:1px;">POPULAR</div>
+          <div style="font-size:2.5px; line-height:1; letter-spacing:0.3px; opacity:0.9;">CHOICE</div>
+        </div>
+      </div>
+      <div style="font-size:8px; font-weight:bold; color:#2D4A3E;">梧葉秋聲 · 果香木質調</div>
+      <div style="font-size:7px; color:#5a8a5e; margin-top:2px;">富士山下，紅楓芒草的秋日寧靜</div>
+      <div style="font-size:5.5px; color:#8BAF8D; margin-top:3px; line-height:1.5;">前調：粉紅胡椒 · 漿果 · 苦橙葉<br/>中調：迷叠香 · 菊花<br/>後調：雪松 · 麝香 · 菊</div>
+    </div>
+
+    <!-- Row 3: Photo 5,6,7 -->
+    <div style="display:flex; gap:4px; margin-bottom:3px;">
+      <div class="photo-slot" style="flex:1; height:42px;"><span class="slot-icon">🌺</span><span class="slot-label">Diffuser\5.png</span></div>
+      <div class="photo-slot" style="flex:1; height:42px;"><span class="slot-icon">🍑</span><span class="slot-label">Diffuser\6.png</span></div>
+      <div class="photo-slot" style="flex:1; height:42px;"><span class="slot-icon">❄️</span><span class="slot-label">Diffuser\7.png</span></div>
+    </div>
+    <div style="display:flex; gap:2px; margin-bottom:5px; font-size:6px; text-align:center;">
+      <div style="flex:1; line-height:1.4;"><b>夏日梔子</b><br/><span style="color:#8BAF8D;">花香西普調</span><br/><span style="font-size:4.5px;color:#A3C1A3;line-height:1.3;">前:佛手柑 梔子花 依蘭<br/>中:廣藿香 檀香木<br/>後:橡木苔 香草根 安息香脂</span></div>
+      <div style="flex:1; line-height:1.4;"><b>桃心之戀</b><br/><span style="color:#8BAF8D;">果香木質調</span><br/><span style="font-size:4.5px;color:#A3C1A3;line-height:1.3;">前:西番蓮 熱帶柑橘<br/>中:梨 蜜桃<br/>後:白桃</span></div>
+      <div style="flex:1; line-height:1.4;"><b>雪映尋木</b><br/><span style="color:#8BAF8D;">馥奇調</span><br/><span style="font-size:4.5px;color:#A3C1A3;line-height:1.3;">前:柏樹 迷迭香 薄荷<br/>中:蔓藤 天竺葵<br/>後:苔蘚 廣藿香</span></div>
+    </div>
+    <div class="badge">無酒精配方 · 植物提取 · 安全溫和</div>
+  </div>
+
+  <!-- Panel 3 (LEFT): Brand Story + Awards -->
+  <div class="panel pi p3">
+    <div class="sec-title">品牌故事</div>
+    <div class="story-t">我們相信，每個人都渴望在都市中找回自然的呼吸。</div>
+    <div style="font-size:7px;line-height:1.7;margin-bottom:4px;">
+      薰木園 DiffuserArt 以「感官療癒」為核心，將富士山的秋楓、雪林的靜謐、沙灘的月光——凝固在多層鏤空木雕之中，佐以專業調香師手調的無酒精香薰。
+    </div>
+    <div class="highlight">藝術 × 氣味，每一件作品都是一幅可以呼吸的風景畫。</div>
+    <div style="display:flex;align-items:center;gap:6px;margin:8px 0;">
+      <div style="flex:1;height:1px;background:rgba(139,175,141,0.5);"></div>
+      <span style="font-size:6px;color:#8BAF8D;white-space:nowrap;">畫中有景，景中有香。</span>
+      <div style="flex:1;height:1px;background:rgba(139,175,141,0.5);"></div>
+    </div>
+    <div class="sec-title" style="font-size:12px;margin-bottom:5px;">認證與獎項</div>
+    <div class="award-item"><div class="award-name">Hong Kong Design Awards 2024 — 金獎</div><div class="award-desc">得獎作品「秋日富士」：七層木雕堆疊，Fibonacci 黃金比例設計</div></div>
+    <div class="award-item"><div class="award-name">Smart Design Global 2026 — 優異獎</div><div class="award-desc">得獎作品「廬山瀑布」：擴香液耗盡後木雕化身永久塔香香爐</div></div>
+    <div class="award-item"><div class="award-name">HKQAA ESG Connect 認可</div><div class="award-desc">於「減少廢棄物產生」指標達實踐階段</div></div>
+    <div class="award-item"><div class="award-name">2025《愛心企業》感謝狀</div><div class="award-desc">支持青少年培訓與就業，肩負企業社會責任</div></div>
+  </div>
+</div>
+
+<!-- ====== EN INNER PAGE ====== -->
+<div id="inner-page-en" class="leaflet-wrap id-page hidden">
+
+  <!-- EN Panel 5 (RIGHT): Bespoke Creation -->
+  <div class="panel pi p5">
+    <div class="sec-title">Bespoke Creation</div>
+    <div class="subt">Capture the moment · Let love fill the air</div>
+    <div style="font-size:5.5px;opacity:0.7;margin-bottom:6px;">Send us your photo — we handcraft a custom wood silhouette paired with your choice of scent.</div>
+
+    <div class="cat-t">Carved Moments — Love &amp; Kinship</div>
+    <div style="display:flex; gap:3px; margin-bottom:2px;">
+      <div class="photo-slot" style="flex:1; max-height:44px; aspect-ratio:1;"><span class="slot-icon" style="font-size:8px;">🏔️</span><span class="slot-label" style="font-size:3.5px;">Autumn Fuji</span></div>
+      <div class="photo-slot" style="flex:1; max-height:44px; aspect-ratio:1;"><span class="slot-icon" style="font-size:8px;">🖼</span><span class="slot-label" style="font-size:3.5px;">Fairytale Dream</span></div>
+    </div>
+    <div style="display:flex; gap:3px; margin-bottom:6px;">
+      <span style="flex:1; text-align:center; font-size:4.5px; color:#2D4A3E;">Autumn Fuji</span>
+      <span style="flex:1; text-align:center; font-size:4.5px; color:#2D4A3E;">Fairytale Dream</span>
+    </div>
+
+    <div class="cat-t">A Story to Tell — Family &amp; Blessings</div>
+    <div style="display:flex; gap:3px; margin-bottom:2px;">
+      <div class="photo-slot" style="flex:1; max-height:44px; aspect-ratio:1;"><span class="slot-icon" style="font-size:8px;">🖼</span><span class="slot-label" style="font-size:3.5px;">Harbour Memories</span></div>
+      <div class="photo-slot" style="flex:1; max-height:44px; aspect-ratio:1;"><span class="slot-icon" style="font-size:8px;">🖼</span><span class="slot-label" style="font-size:3.5px;">Disneyland</span></div>
+    </div>
+    <div style="display:flex; gap:3px; margin-bottom:6px;">
+      <span style="flex:1; text-align:center; font-size:4.5px; color:#2D4A3E;">Harbour Memories</span>
+      <span style="flex:1; text-align:center; font-size:4.5px; color:#2D4A3E;">Disneyland</span>
+    </div>
+
+    <div class="cat-t">Cherished Joys — Hobbies &amp; Collections</div>
+    <div style="display:flex; gap:3px; margin-bottom:2px;">
+      <div class="photo-slot" style="flex:1; max-height:44px; aspect-ratio:1;"><span class="slot-icon" style="font-size:8px;">🖼</span><span class="slot-label" style="font-size:3.5px;">Fearless Journey</span></div>
+      <div class="photo-slot" style="flex:1; max-height:44px; aspect-ratio:1;"><span class="slot-icon" style="font-size:8px;">🖼</span><span class="slot-label" style="font-size:3.5px;">Prairie Whispers</span></div>
+    </div>
+    <div style="display:flex; gap:3px; margin-bottom:3px;">
+      <span style="flex:1; text-align:center; font-size:4.5px; color:#2D4A3E;">Fearless Journey</span>
+      <span style="flex:1; text-align:center; font-size:4.5px; color:#2D4A3E;">Prairie Whispers</span>
+    </div>
+  </div>
+
+  <!-- EN Panel 4 (CENTER): Immersed in Nature - 7 Products -->
+  <div class="panel pi p4">
+    <div class="sec-title">Immersed in Nature</div>
+    <div class="sec-sub">Seven Scents, Seven Journeys</div>
+
+    <!-- Row 1: Photo 2,3,4 -->
+    <div style="display:flex; gap:3px; margin-bottom:2px;">
+      <div class="photo-slot" style="flex:1; height:35px;"><span class="slot-icon">🌸</span><span class="slot-label">Diffuser\2.png</span></div>
+      <div class="photo-slot" style="flex:1; height:35px;"><span class="slot-icon">🌊</span><span class="slot-label">Diffuser\3.png</span></div>
+      <div class="photo-slot" style="flex:1; height:35px;"><span class="slot-icon">🌴</span><span class="slot-label">Diffuser\4.png</span></div>
+    </div>
+    <div style="display:flex; gap:2px; margin-bottom:4px; font-size:5.5px; text-align:center;">
+      <div style="flex:1; line-height:1.3;"><b>Floral Dawn</b><br/><span style="color:#8BAF8D;">Woody Floral</span><br/><span style="font-size:3.8px;color:#A3C1A3;line-height:1.2;">Top: Aldehydes, Pear, Lily of the Valley<br/>Mid: Iris, Rose, Orange Blossom<br/>Base: Musk, Patchouli, Ambrette</span></div>
+      <div style="flex:1; line-height:1.3;"><b>Azure Breeze</b><br/><span style="color:#8BAF8D;">Aquatic Fougère</span><br/><span style="font-size:3.8px;color:#A3C1A3;line-height:1.2;">Top: Petitgrain, Orange, Mandarin<br/>Mid: Seaweed, Lavender, Cotton<br/>Base: Patchouli, Amber, Clary Sage</span></div>
+      <div style="flex:1; line-height:1.3;"><b>Moonlit Sands</b><br/><span style="color:#8BAF8D;">Aquatic Floral</span><br/><span style="font-size:3.8px;color:#A3C1A3;line-height:1.2;">Top: Sea Water, Aldehydes, Coriander, Sweet Pepper<br/>Mid: Iris, Juniper, Rose<br/>Base: Seaweed, Ambergris, Amberwood, Cedarwood</span></div>
+    </div>
+
+    <!-- Row 2: Photo 1 (No.1 Popular Choice) - Large Centered -->
+    <div style="text-align:center; margin-bottom:4px;">
+      <div style="position:relative; width:56px; height:56px; margin:0 auto 3px;">
+        <div class="photo-slot" style="width:56px; height:56px; border:2px solid #2D4A3E; background:rgba(139,175,141,0.3);">
+          <span class="slot-icon">🍂</span><span class="slot-hint">Photo 1</span>
+          <span class="slot-label">Diffuser\1.png</span>
+        </div>
+        <div style="position:absolute; top:-5px; right:-5px; width:26px; height:26px; border-radius:50%; background:#2D4A3E; color:#F5F2EB; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:'Segoe UI','Helvetica Neue',sans-serif; transform:rotate(-12deg); box-shadow:0 1px 3px rgba(0,0,0,0.3); z-index:2;">
+          <div style="font-size:6px; font-weight:700; line-height:1; letter-spacing:0.5px;">No.1</div>
+          <div style="font-size:2.3px; line-height:1; letter-spacing:0.3px; opacity:0.9; margin-top:1px;">POPULAR</div>
+          <div style="font-size:2.3px; line-height:1; letter-spacing:0.3px; opacity:0.9;">CHOICE</div>
+        </div>
+      </div>
+      <div style="font-size:7px; font-weight:bold; color:#2D4A3E;">Autumn Vibes · Fruity Woody</div>
+      <div style="font-size:6px; color:#5a8a5e; margin-top:2px;">Autumn peace beneath Mount Fuji, red maples and silver grass</div>
+      <div style="font-size:5px; color:#8BAF8D; margin-top:2px; line-height:1.4;">Top: Pink Pepper · Berries · Petitgrain<br/>Mid: Rosemary · Chrysanthemum<br/>Base: Cedarwood · Musk · Chrysanthemum</div>
+    </div>
+
+    <!-- Row 3: Photo 5,6,7 -->
+    <div style="display:flex; gap:3px; margin-bottom:2px;">
+      <div class="photo-slot" style="flex:1; height:35px;"><span class="slot-icon">🌺</span><span class="slot-label">Diffuser\5.png</span></div>
+      <div class="photo-slot" style="flex:1; height:35px;"><span class="slot-icon">🍑</span><span class="slot-label">Diffuser\6.png</span></div>
+      <div class="photo-slot" style="flex:1; height:35px;"><span class="slot-icon">❄️</span><span class="slot-label">Diffuser\7.png</span></div>
+    </div>
+    <div style="display:flex; gap:2px; margin-bottom:3px; font-size:5.5px; text-align:center;">
+      <div style="flex:1; line-height:1.3;"><b>Summer Gardenia</b><br/><span style="color:#8BAF8D;">Floral Chypre</span><br/><span style="font-size:3.8px;color:#A3C1A3;line-height:1.2;">Top: Bergamot, Gardenia, Ylang-Ylang<br/>Mid: Patchouli, Sandalwood<br/>Base: Oakmoss, Vetiver, Benzoin</span></div>
+      <div style="flex:1; line-height:1.3;"><b>Passion Peach</b><br/><span style="color:#8BAF8D;">Fruity Woody</span><br/><span style="font-size:3.8px;color:#A3C1A3;line-height:1.2;">Top: Passionfruit, Tropical Citrus<br/>Mid: Pear, Peach<br/>Base: White Peach</span></div>
+      <div style="flex:1; line-height:1.3;"><b>Snowwoods</b><br/><span style="color:#8BAF8D;">Fougère</span><br/><span style="font-size:3.8px;color:#A3C1A3;line-height:1.2;">Top: Cypress, Rosemary, Mint<br/>Mid: Vines, Geranium<br/>Base: Moss, Patchouli</span></div>
+    </div>
+    <div class="badge">Alcohol-Free · Plant-Based · Safe &amp; Gentle</div>
+  </div>
+
+  <!-- EN Panel 3 (LEFT): Brand Story + Awards -->
+  <div class="panel pi p3">
+    <div class="sec-title">Brand Story</div>
+    <div class="story-t">We believe everyone longs to reconnect with nature, even in the city.</div>
+    <div style="font-size:6.5px;line-height:1.6;margin-bottom:3px;">
+      DiffuserArt centres on sensory healing — capturing autumn leaves, snowy forests, and moonlit shores inside layered wood carvings, paired with alcohol-free scents by our perfumer.
+    </div>
+    <div class="highlight">Art × Scent. Every piece is a landscape you can breathe.</div>
+    <div style="display:flex;align-items:center;gap:6px;margin:8px 0;">
+      <div style="flex:1;height:1px;background:rgba(139,175,141,0.5);"></div>
+      <span style="font-size:6px;color:#8BAF8D;white-space:nowrap;">A view within the art, a scent within the view.</span>
+      <div style="flex:1;height:1px;background:rgba(139,175,141,0.5);"></div>
+    </div>
+    <div class="sec-title" style="font-size:12px;margin-bottom:5px;">Awards &amp; Recognition</div>
+    <div class="award-item"><div class="award-name">Hong Kong Design Awards 2024 — Gold</div><div class="award-desc">Winning piece "Autumn Fuji": seven-layer woodcut with Fibonacci golden-ratio design</div></div>
+    <div class="award-item"><div class="award-name">Smart Design Global 2026 — Merit Award</div><div class="award-desc">Winning piece "Lushan Waterfall": becomes a permanent incense burner after the scent oil is gone</div></div>
+    <div class="award-item"><div class="award-name">HKQAA ESG Connect Certified</div><div class="award-desc">Achieved practice stage in waste reduction</div></div>
+    <div class="award-item"><div class="award-name">2025 Caring Company Certificate</div><div class="award-desc">Supporting youth training and employment</div></div>
+  </div>
+</div>
+
+<div class="info">
+  <b>綠色虛線框 = 圖片放置位置</b> · A4 荷包三摺 · 287×212mm · 右→中→左<br/>
+  深綠 #2D4A3E / 淺綠 #A3C1A3 / 米白 #F5F2EB
+</div>
+
+<script>
+var currentLang = 'zh';
+var currentPage = 'outer';
+
+function switchLang(lang) {
+  currentLang = lang;
+  document.body.className = lang === 'en' ? 'lang-en' : 'lang-zh';
+  document.querySelectorAll('.lang-switch button').forEach(b => b.classList.remove('active'));
+  if (lang === 'zh') document.querySelectorAll('.lang-switch button')[0].classList.add('active');
+  else document.querySelectorAll('.lang-switch button')[1].classList.add('active');
+  updateDisplay();
+}
+
+function switchPage(page) {
+  currentPage = page;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  if (page === 'outer') document.querySelectorAll('.tab')[0].classList.add('active');
+  else document.querySelectorAll('.tab')[1].classList.add('active');
+  updateDisplay();
+}
+
+function updateDisplay() {
+  document.querySelectorAll('.id-page').forEach(el => el.classList.remove('visible'));
+  var id = currentPage + '-page-' + currentLang;
+  var el = document.getElementById(id);
+  if (el) el.classList.add('visible');
+}
+
+updateDisplay();
+</script>
+</body>
+</html>
